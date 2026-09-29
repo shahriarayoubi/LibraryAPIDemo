@@ -123,6 +123,12 @@ public sealed class AuthorRequestTests
 
         // Assert
         Assert.False(isValid);
+
+        var result = Assert.Single(results);
+
+        Assert.Contains(
+            nameof(request.FirstName),
+            result.MemberNames);
     }
 
 }
