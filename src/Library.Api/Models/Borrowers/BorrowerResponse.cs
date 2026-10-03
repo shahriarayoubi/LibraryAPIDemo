@@ -1,8 +1,6 @@
-﻿using Library.Data.Common;
+namespace Library.Api.Models.Borrowers;
 
-namespace Library.Data.Entities;
-
-public sealed class Borrower : IAuditableEntity
+public sealed class BorrowerResponse
 {
     public int Id { get; set; }
 
@@ -22,15 +20,9 @@ public sealed class Borrower : IAuditableEntity
 
     public DateTime JoinedUtc { get; set; }
 
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; set; }
 
-    /*
-     * This can later point to the authentication user's identifier.
-     * Keeping it nullable means authentication is not required in phase one.
-     */
     public string? IdentityUserId { get; set; }
-
-    public ICollection<Loan> Loans { get; set; } = [];
 
     public DateTime CreatedUtc { get; set; }
 

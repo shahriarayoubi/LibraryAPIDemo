@@ -1,12 +1,13 @@
 ﻿using Library.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Library.Data.Common;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Library.Data;
 
 public sealed class LibraryDbContext(
     DbContextOptions<LibraryDbContext> options)
-    : DbContext(options)
+    : IdentityDbContext(options)
 {
     public DbSet<Author> Authors => Set<Author>();
 

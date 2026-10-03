@@ -19,8 +19,10 @@ public sealed class BookCopy : IAuditableEntity
     public DateTime AcquiredUtc { get; set; }
 
     public ICollection<Loan> Loans { get; set; } = [];
-    public DateTime CreatedUtc { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public DateTime UpdatedUtc { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+    public DateTime CreatedUtc { get; set; }
+
+    public DateTime UpdatedUtc { get; set; }
 }
 
 public enum BookCopyStatus

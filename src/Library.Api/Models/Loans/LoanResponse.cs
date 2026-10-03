@@ -1,18 +1,12 @@
-﻿using Library.Data.Common;
+namespace Library.Api.Models.Loans;
 
-namespace Library.Data.Entities;
-
-public sealed class Loan : IAuditableEntity
+public sealed class LoanResponse
 {
     public int Id { get; set; }
 
     public int BookCopyId { get; set; }
 
-    public BookCopy BookCopy { get; set; } = null!;
-
     public int BorrowerId { get; set; }
-
-    public Borrower Borrower { get; set; } = null!;
 
     public DateTime LoanedUtc { get; set; }
 

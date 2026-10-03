@@ -3,11 +3,14 @@ using Library.Data;
 using Library.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Library.Api.Security;
 
 namespace Library.Api.Controllers;
 
 [ApiController]
 [Route("api/books")]
+[Authorize]
 public sealed class BooksController(
     LibraryDbContext dbContext) : ControllerBase
 {
@@ -62,6 +65,7 @@ public sealed class BooksController(
     [HttpPost]
     [ProducesResponseType<BookResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Authorize(Roles = RoleNames.Admin)]
     public async Task<ActionResult<BookResponse>> CreateBook(
     CreateBookRequest request,
     CancellationToken cancellationToken)
@@ -104,6 +108,7 @@ public sealed class BooksController(
     [ProducesResponseType<BookResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = RoleNames.Admin)]
     public async Task<ActionResult<BookResponse>> UpdateBook(
     int id,
     UpdateBookRequest request,
@@ -148,6 +153,7 @@ public sealed class BooksController(
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = RoleNames.Admin)]
     public async Task<IActionResult> DeleteBook(
     int id,
     CancellationToken cancellationToken)

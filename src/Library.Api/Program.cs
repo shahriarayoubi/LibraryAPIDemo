@@ -1,6 +1,15 @@
 using Library.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
+using Library.Api.Data;
+using Library.Api.Security;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
+const string ReactDevCorsPolicy = "ReactDevClient";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +31,59 @@ builder.Services.AddDbContext<LibraryDbContext>(options =>
         });
 });
 
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection(JwtOptions.SectionName));
+
+var jwtSection =
+    builder.Configuration.GetSection(JwtOptions.SectionName);
+
+var jwtOptions =
+    jwtSection.Get<JwtOptions>()
+    ?? throw new InvalidOperationException(
+        "JWT configuration was not found.");
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwtOptions.Issuer,
+
+                ValidateAudience = true,
+                ValidAudience = jwtOptions.Audience,
+
+                ValidateLifetime = true,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(jwtOptions.Key))
+            };
+    });
+
+builder.Services
+    .AddIdentityCore<IdentityUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<LibraryDbContext>();
+
+builder.Services.AddScoped<JwtTokenService>();
+
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<LibraryDbContext>(
         name: "database",
         tags: new[] { "ready" });
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(ReactDevCorsPolicy, policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // Add services to the container.
 
@@ -35,13 +93,30 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager =
+        scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    var userManager =
+        scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+    await IdentitySeeder.SeedAsync(
+        roleManager,
+        userManager);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
+    app.UseCors(ReactDevCorsPolicy);
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

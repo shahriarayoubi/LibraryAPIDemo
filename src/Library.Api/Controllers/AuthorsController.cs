@@ -4,11 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Library.Api.Models.Authors;
 using Library.Data.Entities;
 using System.Collections;
+using Microsoft.AspNetCore.Authorization;
+using Library.Api.Security;
 
 namespace Library.Api.Controllers;
 
 [ApiController]
 [Route("api/authors")]
+[Authorize]
 public sealed class AuthorsController(LibraryDbContext dbContext) : ControllerBase
 {
     [HttpGet]
@@ -61,6 +64,7 @@ public sealed class AuthorsController(LibraryDbContext dbContext) : ControllerBa
 
     [HttpPost]
     [ProducesResponseType<AuthorResponse>(StatusCodes.Status201Created)]
+    [Authorize(Roles = RoleNames.Admin)]
     public async Task<ActionResult<AuthorResponse>> CreateAuthor(
     CreateAuthorRequest request,
     CancellationToken cancellationToken)
@@ -91,6 +95,7 @@ public sealed class AuthorsController(LibraryDbContext dbContext) : ControllerBa
     [HttpPut("{id:int}")]
     [ProducesResponseType<AuthorResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = RoleNames.Admin)]
     public async Task<ActionResult<AuthorResponse>> UpdateAuthor(
     int id,
     UpdateAuthorRequest request,
@@ -124,6 +129,7 @@ public sealed class AuthorsController(LibraryDbContext dbContext) : ControllerBa
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = RoleNames.Admin)]
     public async Task<IActionResult> DeleteAuthor(
     int id,
     CancellationToken cancellationToken)

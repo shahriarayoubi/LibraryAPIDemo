@@ -1,6 +1,7 @@
 ﻿using Library.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.AspNetCore.Identity;
 
 namespace Library.Data.Configurations;
 
@@ -47,5 +48,11 @@ internal sealed class BorrowerConfiguration
         builder.HasIndex(borrower => borrower.IdentityUserId)
             .IsUnique()
             .HasFilter("[IdentityUserId] IS NOT NULL");
+
+        builder.HasOne<IdentityUser>()
+            .WithOne()
+            .HasForeignKey<Borrower>(
+                borrower => borrower.IdentityUserId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
